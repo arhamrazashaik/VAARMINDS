@@ -28,6 +28,14 @@ const Login = () => {
       addAlert(error, 'error');
       clearError();
     }
+
+    // Check for session expired parameter in URL
+    const queryParams = new URLSearchParams(window.location.search);
+    if (queryParams.get('session') === 'expired') {
+      addAlert('Your session has expired. Please login again.', 'warning');
+      // Remove the query parameter to prevent showing the message again on refresh
+      navigate('/login', { replace: true });
+    }
   }, [isAuthenticated, error, navigate, addAlert, clearError]);
 
   const handleChange = (e) => {
@@ -72,14 +80,32 @@ const Login = () => {
 
     setIsLoading(true);
 
-    const { email, password } = formData;
-    const result = await login(email, password);
+    try {
+      const { email, password } = formData;
+      const result = await login(email, password);
 
-    setIsLoading(false);
+      if (result.success) {
+        // Show only one success alert
+        addAlert('Login successful!', 'success');
 
-    if (result.success) {
-      addAlert('Login successful! Redirecting...', 'success');
-      navigate('/dashboard');
+        // Short delay before redirecting
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+
+      // Show a user-friendly error message
+      const errorMessage = error.message || 'Login failed. Please check your credentials and try again.';
+      addAlert(errorMessage, 'error');
+
+      // If it's a network error, show a specific message
+      if (error.message.includes('Network error')) {
+        addAlert('Cannot connect to the server. Please check your internet connection.', 'error');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 

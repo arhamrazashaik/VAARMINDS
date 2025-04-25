@@ -173,11 +173,11 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <Link to="/" className="flex items-center">
-                <span className="text-2xl font-bold text-primary-600">KR0354</span>
+                <span className="text-2xl font-bold text-primary-600">RideNest</span>
                 <span className="ml-2 text-sm font-medium text-gray-500">Ride Sharing</span>
               </Link>
               <p className="mt-2 text-sm text-gray-500">
-                &copy; {new Date().getFullYear()} KR0354 Ride Sharing. All rights reserved.
+                &copy; {new Date().getFullYear()} RideNest Ride Sharing. All rights reserved.
               </p>
             </div>
 

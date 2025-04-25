@@ -1,14 +1,13 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  MapPinIcon, 
-  CalendarIcon, 
-  UserGroupIcon, 
-  CreditCardIcon,
-  ArrowRightIcon,
-  ClockIcon
-} from '@heroicons/react/24/outline';
-import axios from 'axios';
+import {
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaUsers,
+  FaCreditCard,
+  FaArrowRight,
+  FaClock
+} from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import AlertContext from '../context/AlertContext';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/common/Card';
@@ -23,23 +22,64 @@ const Dashboard = () => {
   const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const loadDashboardData = () => {
       try {
         setIsLoading(true);
-        
-        // Fetch upcoming rides
-        const ridesRes = await axios.get('http://localhost:5000/api/rides', {
-          params: {
-            status: 'pending,confirmed',
-            from: new Date().toISOString()
+
+        // Mock upcoming rides data
+        const mockRides = [
+          {
+            _id: '1',
+            type: 'group',
+            scheduledTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+            passengers: [
+              { dropoffLocation: { address: 'Tech Park, Sector 62, Noida' } }
+            ],
+            status: 'confirmed'
+          },
+          {
+            _id: '2',
+            type: 'solo',
+            scheduledTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+            passengers: [
+              { dropoffLocation: { address: 'Central Market, Lajpat Nagar' } }
+            ],
+            status: 'pending'
+          },
+          {
+            _id: '3',
+            type: 'group',
+            scheduledTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+            passengers: [
+              { dropoffLocation: { address: 'Cyber Hub, Gurugram' } }
+            ],
+            status: 'confirmed'
           }
-        });
-        
-        // Fetch user's groups
-        const groupsRes = await axios.get('http://localhost:5000/api/groups');
-        
-        // In a real app, we would fetch recent activity from the backend
-        // For now, we'll use mock data
+        ];
+
+        // Mock groups data
+        const mockGroups = [
+          {
+            _id: '1',
+            name: 'Tech Park Commuters',
+            type: 'work',
+            members: Array(12).fill(null)
+          },
+          {
+            _id: '2',
+            name: 'Weekend Travelers',
+            type: 'leisure',
+            members: Array(8).fill(null)
+          },
+          {
+            _id: '3',
+            name: 'College Carpool',
+            type: 'education',
+            members: Array(5).fill(null)
+          }
+        ];
+
+        // Mock activity data
         const mockActivity = [
           {
             id: 1,
@@ -60,34 +100,42 @@ const Dashboard = () => {
             timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
           }
         ];
-        
-        setUpcomingRides(ridesRes.data.slice(0, 3));
-        setMyGroups(groupsRes.data.slice(0, 3));
+
+        // Set state with mock data
+        setUpcomingRides(mockRides);
+        setMyGroups(mockGroups);
         setRecentActivity(mockActivity);
-        
+
+        // Add success message
+        addAlert('Dashboard loaded successfully', 'success');
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error setting up dashboard data:', error);
         addAlert('Failed to load dashboard data', 'error');
       } finally {
         setIsLoading(false);
       }
     };
-    
-    fetchDashboardData();
+
+    // Short timeout to ensure the dashboard loads after authentication is complete
+    const timer = setTimeout(() => {
+      loadDashboardData();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [addAlert]);
 
   // Format date for display
   const formatDate = (dateString) => {
-    const options = { 
-      weekday: 'short', 
-      month: 'short', 
+    const options = {
+      weekday: 'short',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
-  
+
   // Format relative time
   const getRelativeTime = (dateString) => {
     const now = new Date();
@@ -97,7 +145,7 @@ const Dashboard = () => {
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-    
+
     if (diffDay > 0) {
       return `${diffDay} day${diffDay > 1 ? 's' : ''} ago`;
     } else if (diffHour > 0) {
@@ -126,31 +174,31 @@ const Dashboard = () => {
           Here's what's happening with your rides and groups.
         </p>
       </div>
-      
+
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           {
             title: 'Book a Ride',
-            icon: MapPinIcon,
+            icon: FaMapMarkerAlt,
             color: 'bg-blue-500',
             link: '/book-ride'
           },
           {
             title: 'My Rides',
-            icon: CalendarIcon,
+            icon: FaCalendarAlt,
             color: 'bg-green-500',
             link: '/rides'
           },
           {
             title: 'My Groups',
-            icon: UserGroupIcon,
+            icon: FaUsers,
             color: 'bg-purple-500',
             link: '/groups'
           },
           {
             title: 'Payments',
-            icon: CreditCardIcon,
+            icon: FaCreditCard,
             color: 'bg-orange-500',
             link: '/payments'
           }
@@ -167,7 +215,7 @@ const Dashboard = () => {
           </Link>
         ))}
       </div>
-      
+
       {/* Dashboard Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Rides */}
@@ -186,16 +234,16 @@ const Dashboard = () => {
                           {ride.type.charAt(0).toUpperCase() + ride.type.slice(1)} Ride
                         </h3>
                         <div className="mt-1 flex items-center text-sm text-gray-500">
-                          <ClockIcon className="h-4 w-4 mr-1" />
+                          <FaClock className="h-4 w-4 mr-1" />
                           {formatDate(ride.scheduledTime)}
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500">
-                          <MapPinIcon className="h-4 w-4 mr-1" />
+                          <FaMapMarkerAlt className="h-4 w-4 mr-1" />
                           {ride.passengers[0]?.dropoffLocation?.address || 'Destination'}
                         </div>
                       </div>
                       <Link to={`/rides/${ride._id}`}>
-                        <Button size="sm" variant="outline" icon={ArrowRightIcon} iconPosition="right">
+                        <Button size="sm" variant="outline" icon={FaArrowRight} iconPosition="right">
                           Details
                         </Button>
                       </Link>
@@ -220,7 +268,7 @@ const Dashboard = () => {
             </CardFooter>
           )}
         </Card>
-        
+
         {/* Recent Activity */}
         <Card>
           <CardHeader className="bg-gray-50">
@@ -243,7 +291,7 @@ const Dashboard = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         {/* My Groups */}
         <Card className="lg:col-span-2">
           <CardHeader className="bg-gray-50">
@@ -262,7 +310,7 @@ const Dashboard = () => {
                         </p>
                       </div>
                       <Link to={`/groups/${group._id}`}>
-                        <Button size="sm" variant="outline" icon={ArrowRightIcon} iconPosition="right">
+                        <Button size="sm" variant="outline" icon={FaArrowRight} iconPosition="right">
                           View
                         </Button>
                       </Link>
@@ -287,7 +335,7 @@ const Dashboard = () => {
             </CardFooter>
           )}
         </Card>
-        
+
         {/* Quick Stats */}
         <Card>
           <CardHeader className="bg-gray-50">

@@ -9,13 +9,26 @@ export const AlertProvider = ({ children }) => {
   // Add alert
   const addAlert = (msg, type = 'info', timeout = 5000) => {
     const id = uuidv4();
-    
-    setAlerts(prevAlerts => [...prevAlerts, { id, msg, type }]);
+
+    // Check if the same message already exists to prevent duplicates
+    setAlerts(prevAlerts => {
+      // Check if we already have this exact message and type
+      const isDuplicate = prevAlerts.some(alert =>
+        alert.msg === msg && alert.type === type
+      );
+
+      // If it's a duplicate, don't add it
+      if (isDuplicate) {
+        return prevAlerts;
+      }
+
+      return [...prevAlerts, { id, msg, type }];
+    });
 
     if (timeout) {
       setTimeout(() => removeAlert(id), timeout);
     }
-    
+
     return id;
   };
 

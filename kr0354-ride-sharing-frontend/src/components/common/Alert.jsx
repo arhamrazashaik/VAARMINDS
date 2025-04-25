@@ -1,9 +1,20 @@
-import { useContext } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useContext, useEffect } from 'react';
+import { FaTimes } from 'react-icons/fa';
 import AlertContext from '../../context/AlertContext';
 
 const Alert = () => {
   const { alerts, removeAlert } = useContext(AlertContext);
+
+  // Auto-remove alerts after 5 seconds
+  useEffect(() => {
+    if (alerts.length > 0) {
+      const timer = setTimeout(() => {
+        removeAlert(alerts[0].id);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [alerts, removeAlert]);
 
   if (alerts.length === 0) {
     return null;
@@ -50,7 +61,7 @@ const Alert = () => {
                 onClick={() => removeAlert(alert.id)}
                 className="ml-4 text-gray-400 hover:text-gray-600 focus:outline-none"
               >
-                <XMarkIcon className="h-5 w-5" />
+                <FaTimes className="h-5 w-5" />
               </button>
             </div>
           </div>

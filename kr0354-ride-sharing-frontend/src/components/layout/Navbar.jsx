@@ -1,15 +1,28 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaBars, FaTimes, FaUserCircle, FaBell } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUserCircle, FaBell, FaSignOutAlt } from 'react-icons/fa';
+import AuthContext from '../../context/AuthContext';
+import AlertContext from '../../context/AlertContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would be from auth context in a real app
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get auth context
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const { addAlert } = useContext(AlertContext);
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    addAlert('You have been logged out successfully', 'success');
+    navigate('/');
+  };
 
   // Check if user is scrolled down
   useEffect(() => {
@@ -55,7 +68,7 @@ const Navbar = () => {
           <span className={`text-2xl font-bold ${
             isScrolled || location.pathname !== '/' ? 'text-primary-600' : 'text-white'
           }`}>
-            KR0354
+            RideNest
           </span>
           <span className={`ml-2 text-sm font-medium ${
             isScrolled || location.pathname !== '/' ? 'text-gray-500' : 'text-white/80'
@@ -70,7 +83,7 @@ const Navbar = () => {
           <NavLink to="/book-ride" label="Book a Ride" isScrolled={isScrolled || location.pathname !== '/'} />
           <NavLink to="/groups" label="Groups" isScrolled={isScrolled || location.pathname !== '/'} />
 
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <>
               <div className="relative">
                 <button
@@ -121,7 +134,7 @@ const Navbar = () => {
                   }`}
                 >
                   <FaUserCircle className="h-5 w-5 mr-2" />
-                  <span>Account</span>
+                  <span>{user?.name || 'Account'}</span>
                 </button>
 
                 {isProfileOpen && (
@@ -133,8 +146,14 @@ const Navbar = () => {
                       <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Profile
                       </Link>
-                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Sign out
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <div className="flex items-center">
+                          <FaSignOutAlt className="mr-2 h-4 w-4 text-gray-500" />
+                          Sign out
+                        </div>
                       </button>
                     </div>
                   </div>
@@ -193,12 +212,18 @@ const Navbar = () => {
             <MobileNavLink to="/book-ride" label="Book a Ride" />
             <MobileNavLink to="/groups" label="Groups" />
 
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <>
                 <MobileNavLink to="/dashboard" label="Dashboard" />
                 <MobileNavLink to="/profile" label="Profile" />
-                <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
-                  Sign out
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+                >
+                  <div className="flex items-center">
+                    <FaSignOutAlt className="mr-2 h-4 w-4 text-gray-500" />
+                    Sign out
+                  </div>
                 </button>
               </>
             ) : (

@@ -17,6 +17,7 @@ import Groups from './pages/Groups';
 import GroupDetails from './pages/GroupDetails';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
+import MapboxNavigation from './pages/MapboxNavigation';
 
 // Components
 import Navbar from './components/layout/Navbar';
@@ -95,6 +96,7 @@ function AnimatedRoutes() {
           <Route path="/groups/:id" element={<GroupDetails />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
+          <Routde path="/mapbox" element={<MapboxNavigation />} />  
         </Routes>
       </motion.div>
     </AnimatePresence>

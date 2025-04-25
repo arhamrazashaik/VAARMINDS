@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserIcon, EnvelopeIcon, LockClosedIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { FaUser, FaEnvelope, FaLock, FaPhone } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import AlertContext from '../context/AlertContext';
 import { Card, CardBody } from '../components/common/Card';
@@ -94,19 +94,43 @@ const Register = () => {
 
     setIsLoading(true);
 
-    const { name, email, password, phoneNumber } = formData;
-    const result = await register({
-      name,
-      email,
-      password,
-      phoneNumber
-    });
+    try {
+      const { name, email, password, phoneNumber } = formData;
+      const result = await register({
+        name,
+        email,
+        password,
+        phoneNumber
+      });
 
-    setIsLoading(false);
+      if (result.success) {
+        // Show only one success alert
+        addAlert('Registration successful! Welcome aboard.', 'success');
 
-    if (result.success) {
-      addAlert('Registration successful! Welcome aboard.', 'success');
-      navigate('/dashboard');
+        // Short delay before redirecting
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+
+      // Show a user-friendly error message
+      let errorMessage = error.message || 'Registration failed. Please try again.';
+
+      // Handle specific error messages
+      if (errorMessage.includes('Email already exists')) {
+        errorMessage = 'This email is already registered. Please use a different email or login.';
+      }
+
+      addAlert(errorMessage, 'error');
+
+      // If it's a network error, show a specific message
+      if (error.message.includes('Network error')) {
+        addAlert('Cannot connect to the server. Please check your internet connection.', 'error');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,7 +152,7 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter your full name"
-              icon={UserIcon}
+              icon={FaUser}
               error={errors.name}
               required
             />
@@ -141,7 +165,7 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              icon={EnvelopeIcon}
+              icon={FaEnvelope}
               error={errors.email}
               required
             />
@@ -154,7 +178,7 @@ const Register = () => {
               value={formData.phoneNumber}
               onChange={handleChange}
               placeholder="Enter your phone number"
-              icon={PhoneIcon}
+              icon={FaPhone}
               error={errors.phoneNumber}
               required
             />
@@ -167,7 +191,7 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Create a password"
-              icon={LockClosedIcon}
+              icon={FaLock}
               error={errors.password}
               required
             />
@@ -180,7 +204,7 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm your password"
-              icon={LockClosedIcon}
+              icon={FaLock}
               error={errors.confirmPassword}
               required
             />
