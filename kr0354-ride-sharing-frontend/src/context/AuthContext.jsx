@@ -1,11 +1,14 @@
 import { createContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
-import io from 'socket.io-client';
+import mockBackend from '../services/mockBackend';
 
-// Socket.io connection
-const socket = io('http://localhost:5000', {
-  autoConnect: false
-});
+// Mock socket for development
+const socket = {
+  auth: {},
+  connected: false,
+  connect: () => { console.log('Mock socket connected'); },
+  disconnect: () => { console.log('Mock socket disconnected'); },
+  emit: (event, data) => { console.log(`Mock socket emit: ${event}`, data); }
+};
 
 const AuthContext = createContext();
 
@@ -23,20 +26,19 @@ export const AuthProvider = ({ children }) => {
 
       if (storedToken) {
         try {
-          // Get user data from API
-          const response = await authAPI.getMe();
-          const userData = response.data.data;
+          // Get user data from mock backend
+          const userData = await mockBackend.getUserProfile(storedToken);
 
           setUser(userData);
           setToken(storedToken); // Ensure token state matches localStorage
           setIsAuthenticated(true);
 
-          // Connect socket.io
+          // Connect mock socket
           socket.auth = { token: storedToken };
           socket.connect();
 
           // Join user's personal room
-          socket.emit('join-user', userData._id);
+          socket.emit('join-user', userData.id);
         } catch (err) {
           console.error('Error loading user:', err);
           localStorage.removeItem('token');
@@ -45,9 +47,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(false);
 
           // Don't show error message on initial load
-          if (err.response && err.response.status !== 401) {
-            setError('Session expired. Please login again.');
-          }
+          setError('Session expired. Please login again.');
         }
       }
       setLoading(false);
@@ -66,19 +66,18 @@ export const AuthProvider = ({ children }) => {
   // Register user
   const register = async (formData) => {
     try {
-      const response = await authAPI.register(formData);
-      const { token, user } = response.data;
+      const userData = await mockBackend.register(formData);
 
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUser(user);
+      localStorage.setItem('token', userData.token);
+      setToken(userData.token);
+      setUser(userData);
       setIsAuthenticated(true);
       setLoading(false);
       setError(null);
 
       return { success: true };
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+      const errorMessage = err.message || 'Registration failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -87,23 +86,22 @@ export const AuthProvider = ({ children }) => {
   // Login user
   const login = async (email, password) => {
     try {
-      const response = await authAPI.login(email, password);
-      const { token, user } = response.data;
+      const userData = await mockBackend.login(email, password);
 
-      localStorage.setItem('token', token);
-      setToken(token);
-      setUser(user);
+      localStorage.setItem('token', userData.token);
+      setToken(userData.token);
+      setUser(userData);
       setIsAuthenticated(true);
       setLoading(false);
       setError(null);
 
-      // Connect socket
-      socket.auth = { token };
+      // Connect mock socket
+      socket.auth = { token: userData.token };
       socket.connect();
 
       return { success: true };
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Invalid credentials';
+      const errorMessage = err.message || 'Invalid credentials';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -126,7 +124,7 @@ export const AuthProvider = ({ children }) => {
   // Update user profile
   const updateProfile = async (formData) => {
     try {
-      // Use mock backend instead of axios
+      // Use mock backend
       const userData = await mockBackend.updateProfile(token, formData);
 
       setUser(userData);
@@ -142,7 +140,7 @@ export const AuthProvider = ({ children }) => {
   // Add saved location
   const addSavedLocation = async (locationData) => {
     try {
-      // Use mock backend instead of axios
+      // Use mock backend
       const savedLocations = await mockBackend.addSavedLocation(token, locationData);
 
       setUser({
@@ -160,7 +158,7 @@ export const AuthProvider = ({ children }) => {
   // Add payment method
   const addPaymentMethod = async (paymentData) => {
     try {
-      // Use mock backend instead of axios
+      // Use mock backend
       const paymentMethods = await mockBackend.addPaymentMethod(token, paymentData);
 
       setUser({

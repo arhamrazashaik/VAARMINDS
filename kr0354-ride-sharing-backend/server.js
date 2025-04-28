@@ -7,12 +7,17 @@ import morgan from 'morgan';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
+
+
+
+
 // Route imports
 import userRoutes from './routes/userRoutes.js';
 import vehicleRoutes from './routes/vehicleRoutes.js';
 import rideRoutes from './routes/rideRoutes.js';
 import groupRoutes from './routes/groupRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import razorApp from './apis/Razorpay.js';
 
 // Load environment variables
 dotenv.config();
@@ -57,6 +62,7 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use("/razorpay", razorApp);
 
 // Root route
 app.get('/', (req, res) => {

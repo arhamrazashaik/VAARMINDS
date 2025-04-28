@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  UserGroupIcon, 
-  MapPinIcon, 
+import {
+  UserGroupIcon,
+  MapPinIcon,
   CalendarIcon,
   PlusIcon,
   MagnifyingGlassIcon
@@ -16,7 +16,7 @@ const Groups = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
-  
+
   useEffect(() => {
     // In a real implementation, this would fetch groups from the API
     // For now, we'll use mock data
@@ -87,29 +87,29 @@ const Groups = () => {
         isPublic: true
       }
     ];
-    
+
     setTimeout(() => {
       setGroups(mockGroups);
       setLoading(false);
     }, 1000);
   }, []);
-  
+
   // Filter and search groups
   const filteredGroups = groups.filter(group => {
     const matchesFilter = filter === 'all' || group.type === filter;
-    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          group.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -120,7 +120,7 @@ const Groups = () => {
           </Button>
         </Link>
       </div>
-      
+
       {/* Search and Filter */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="md:w-2/3">
@@ -146,7 +146,7 @@ const Groups = () => {
           </select>
         </div>
       </div>
-      
+
       {/* Groups List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredGroups.length > 0 ? (
@@ -170,24 +170,24 @@ const Groups = () => {
                       </span>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{group.description}</p>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center text-sm text-gray-600">
                       <UserGroupIcon className="h-4 w-4 mr-2" />
                       {group.members.length} members
                     </div>
-                    
+
                     <div className="flex items-center text-sm text-gray-600">
                       <MapPinIcon className="h-4 w-4 mr-2" />
                       {group.destination.address}
                     </div>
-                    
+
                     <div className="flex items-center text-sm text-gray-600">
                       <CalendarIcon className="h-4 w-4 mr-2" />
-                      {group.schedule.recurring.isRecurring 
-                        ? `Recurring (${group.schedule.recurring.frequency})` 
+                      {group.schedule.recurring.isRecurring
+                        ? `Recurring (${group.schedule.recurring.frequency})`
                         : 'Non-recurring'}
                     </div>
                   </div>
@@ -203,20 +203,39 @@ const Groups = () => {
           </div>
         )}
       </div>
-      
+
       {/* Discover Public Groups */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Discover Public Groups</h2>
-        
-        <Card>
-          <CardBody className="p-8 text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Find groups near you</h3>
-            <p className="text-gray-600 mb-6">
-              Discover public groups in your area and join them to share rides and save money.
-            </p>
-            <Button>
-              Explore Public Groups
-            </Button>
+
+        <Card className="overflow-hidden shadow-xl">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-800 p-8 text-center text-white relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div className="relative z-10">
+              <h3 className="text-2xl font-medium mb-2">Find Groups Near You</h3>
+              <p className="mb-6 text-white/90">
+                Discover public groups in your area and join them to share rides and save money.
+              </p>
+              <Link to="/groups/public">
+                <Button className="bg-white text-primary-700 hover:bg-gray-100 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  Explore Public Groups
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <CardBody className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 bg-gradient-to-b from-white to-gray-50">
+            <div className="text-center p-4">
+              <div className="text-3xl font-bold text-primary-600 mb-2">20+</div>
+              <div className="text-gray-600 font-medium">Active Groups</div>
+            </div>
+            <div className="text-center p-4">
+              <div className="text-3xl font-bold text-primary-600 mb-2">100+</div>
+              <div className="text-gray-600 font-medium">Members</div>
+            </div>
+            <div className="text-center p-4">
+              <div className="text-3xl font-bold text-primary-600 mb-2">₹15,000+</div>
+              <div className="text-gray-600 font-medium">Saved Monthly</div>
+            </div>
           </CardBody>
         </Card>
       </div>

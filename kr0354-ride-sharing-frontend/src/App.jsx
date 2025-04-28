@@ -15,9 +15,12 @@ import BookRide from './pages/BookRide';
 import RideDetails from './pages/RideDetails';
 import Groups from './pages/Groups';
 import GroupDetails from './pages/GroupDetails';
+import CreateGroup from './pages/CreateGroup';
+import PublicGroups from './pages/PublicGroups';
 import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
-import MapboxNavigation from './pages/MapboxNavigation';
+import Payment from './pages/Payment';
+// MapboxNavigation component removed as it doesn't exist
 
 // Components
 import Navbar from './components/layout/Navbar';
@@ -93,10 +96,12 @@ function AnimatedRoutes() {
           <Route path="/book-ride" element={<BookRide />} />
           <Route path="/rides/:id" element={<RideDetails />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/create" element={<CreateGroup />} />
+          <Route path="/groups/public" element={<PublicGroups />} />
           <Route path="/groups/:id" element={<GroupDetails />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
-          <Routde path="/mapbox" element={<MapboxNavigation />} />  
+          <Route path="/payment" element={<Payment />} /> 
         </Routes>
       </motion.div>
     </AnimatePresence>

@@ -102,13 +102,13 @@ const Home = () => {
                   src="https://imgs.search.brave.com/APA2XV6r9ToupapQunxCdc7ldwD-I0zmQd2QXTdmwpc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dWJlci1hc3NldHMu/Y29tL2ltYWdlL3Vw/bG9hZC9mX2F1dG8s/cV9hdXRvOmVjbyxj/X2ZpbGwsaF8zNjgs/d181NTIvdjE3MzEx/MzcxODUvYXNzZXRz/L2YwL2U0M2E4ZS02/NjJlLTQxN2UtYWJi/Ni1hN2I0YzE3MjAy/OGUvb3JpZ2luYWwv/U2h1dHRsZS5wbmc"
                   alt="3D Car Rendering"
                   className="rounded-lg shadow-2xl"
-                  whileHover={{ scale: 1.03, rotate: 1 }}
+                  whileHover={{ scale: 1.03, rotate: 6 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 />
                 <motion.div
                   className="absolute -bottom-6 -right-6 bg-white rounded-lg shadow-lg p-4"
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 3 }}
+                  transition={{ repeat: Infinity, duration: 4 }}
                 >
                   <div className="flex items-center">
                     <div className="flex -space-x-2">
