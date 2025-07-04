@@ -11,8 +11,7 @@ import {
   ChartBarIcon,
   PlusIcon,
   MapIcon,
-  TrashIcon,
-  XMarkIcon
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardBody, CardFooter } from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -48,12 +47,41 @@ const GroupDetails = () => {
 
   useEffect(() => {
     // In a real implementation, this would fetch group data from the API
-    // For now, we'll use mock data
+    // For now, we'll use mock data based on group ID
+    const getMockGroup = (groupId) => {
+      const groups = {
+        '1': {
+          _id: groupId,
+          name: 'Tech Park Commuters',
+          description: 'Daily office commute to Whitefield Tech Park. We share rides to save costs and reduce traffic congestion. Join us if you work in the Whitefield area!',
+          type: 'office',
+        },
+        '2': {
+          _id: groupId,
+          name: 'Weekend Gateway Explorers',
+          description: 'Weekend trips to nearby hill stations and scenic places. Perfect for adventure seekers and nature lovers who want to explore Karnataka\'s beautiful destinations!',
+          type: 'leisure',
+        },
+        '3': {
+          _id: groupId,
+          name: 'Airport Express Group',
+          description: 'Shared rides to and from Bangalore Airport. Save money on expensive airport taxis and travel with fellow passengers. Available 24/7 for all flight schedules.',
+          type: 'airport',
+        },
+        '4': {
+          _id: groupId,
+          name: 'University Students Hub',
+          description: 'Daily commute for university students. Share rides to campus, libraries, and student events. Budget-friendly option for students in the area.',
+          type: 'education',
+        }
+      };
+
+      return groups[groupId] || groups['1']; // Default to group 1 if ID not found
+    };
+
+    const baseGroup = getMockGroup(id);
     const mockGroup = {
-      _id: id,
-      name: 'Tech Park Commuters',
-      description: 'Daily office commute to Whitefield Tech Park. We share rides to save costs and reduce traffic congestion. Join us if you work in the Whitefield area!',
-      type: 'office',
+      ...baseGroup,
       creator: {
         _id: '1',
         name: 'John Doe',
@@ -98,13 +126,31 @@ const GroupDetails = () => {
           joinedAt: '2023-02-10T11:30:00Z'
         }
       ],
-      destination: {
+      destination: id === '1' ? {
         address: 'Whitefield Tech Park, Bangalore',
         coordinates: [77.7480, 12.9698]
+      } : id === '2' ? {
+        address: 'Nandi Hills, Karnataka',
+        coordinates: [77.6833, 13.3667]
+      } : id === '3' ? {
+        address: 'Kempegowda International Airport, Bangalore',
+        coordinates: [77.7064, 13.1986]
+      } : {
+        address: 'Bangalore University, Bangalore',
+        coordinates: [77.5946, 13.0067]
       },
-      origin: {
+      origin: id === '1' ? {
         address: 'Indiranagar, Bangalore',
         coordinates: [77.6410, 12.9784]
+      } : id === '2' ? {
+        address: 'Koramangala, Bangalore',
+        coordinates: [77.6309, 12.9279]
+      } : id === '3' ? {
+        address: 'Electronic City, Bangalore',
+        coordinates: [77.6648, 12.8456]
+      } : {
+        address: 'Jayanagar, Bangalore',
+        coordinates: [77.5833, 12.9279]
       },
       schedule: {
         startDate: '2023-01-15T00:00:00Z',
@@ -426,12 +472,13 @@ const GroupDetails = () => {
   }, [group?.chat?.messages, activeTab]);
 
   return (
-    <motion.div
-      className="max-w-4xl mx-auto py-8 pt-16 relative"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
+    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="max-w-4xl mx-auto py-8 pt-20 relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
       {/* Background decorative elements */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100 rounded-full filter blur-3xl opacity-20 -z-10"></div>
       <div className="absolute bottom-20 left-10 w-72 h-72 bg-primary-100 rounded-full filter blur-3xl opacity-20 -z-10"></div>
@@ -1370,7 +1417,8 @@ const GroupDetails = () => {
           </AnimatePresence>
         )}
       </Modal>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 

@@ -17,7 +17,7 @@ import {
 import { GoogleMap, DirectionsService, DirectionsRenderer, Autocomplete, useJsApiLoader, Marker } from '@react-google-maps/api';
 
 // Google Maps API Key
-const GOOGLE_MAPS_API_KEY = "AIzaSyBYQLOr7-w85grXI2SiUrWxzIt0JsASLjA";
+const GOOGLE_MAPS_API_KEY = "AIzaSyDHlM6-39YYVj7iVlbTKZZN91jql4piJd4";
 
 // Map container styles
 const mapContainerStyle = {
@@ -33,7 +33,7 @@ const defaultCenter = {
 };
 
 // Libraries for Google Maps
-const libraries = ['places', 'directions'];
+const libraries = ['places'];
 
 // Helper function to get color values
 const getColorClass = (color, shade) => {
@@ -70,7 +70,7 @@ const getColorClass = (color, shade) => {
 const BookRide = () => {
   // Load Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyBYQLOr7-w85grXI2SiUrWxzIt0JsASLjA",
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries
   });
 
@@ -81,8 +81,8 @@ const BookRide = () => {
     dateTime: '',
     passengers: 4,
     vehicleType: 'Sedan',
-    pickupLocation: '123 Main St, Anytown',
-    destination: '456 Office Park, Business District',
+    pickupLocation: '',
+    destination: '',
     paymentMethod: 'Credit Card (•••• 4242)'
   });
 
@@ -219,9 +219,11 @@ const BookRide = () => {
     return drivers[Math.floor(Math.random() * drivers.length)];
   };
 
- 
+
   useEffect(() => {
+    console.log('Route calculation effect triggered:', { startAddress, endAddress, isLoaded });
     if (startAddress && endAddress && isLoaded) {
+      console.log('Calculating route from', startAddress, 'to', endAddress);
       const directionsService = new window.google.maps.DirectionsService();
       directionsService.route(
         {
@@ -231,17 +233,10 @@ const BookRide = () => {
         },
         (result, status) => {
           if (status === window.google.maps.DirectionsStatus.OK) {
+            console.log('Route calculation successful:', result);
             setDirectionsResponse(result);
             setDistance(result.routes[0].legs[0].distance.text);
             setDuration(result.routes[0].legs[0].duration.text);
-
-
-            setFormData(prev => ({
-              ...prev,
-              pickupLocation: startAddress,
-              destination: endAddress
-            }));
-
 
             const distanceValue = parseFloat(result.routes[0].legs[0].distance.text.replace(/[^\d.]/g, ''));
 
@@ -257,12 +252,15 @@ const BookRide = () => {
             const fare = Math.round(distanceValue * rate);
             const perPersonFare = Math.round(fare / formData.passengers);
 
-            setEstimatedValues({
+            const newEstimatedValues = {
               distance: result.routes[0].legs[0].distance.text,
               duration: result.routes[0].legs[0].duration.text,
               fare,
               perPersonFare
-            });
+            };
+
+            console.log('Updated estimated values:', newEstimatedValues);
+            setEstimatedValues(newEstimatedValues);
           } else {
             console.error('Directions request failed due to ' + status);
           }
@@ -486,8 +484,14 @@ const BookRide = () => {
                           onPlaceChanged={() => {
                             if (startRef.current) {
                               const place = startRef.current.getPlace();
+                              console.log('Pickup place selected:', place);
                               if (place && place.formatted_address) {
+                                console.log('Setting pickup address:', place.formatted_address);
                                 setStartAddress(place.formatted_address);
+                                setFormData(prev => ({
+                                  ...prev,
+                                  pickupLocation: place.formatted_address
+                                }));
                               }
                             }
                           }}
@@ -496,6 +500,14 @@ const BookRide = () => {
                           <input
                             type="text"
                             name="pickupLocation"
+                            value={formData.pickupLocation}
+                            onChange={(e) => {
+                              console.log('Pickup input changed:', e.target.value);
+                              setFormData(prev => ({
+                                ...prev,
+                                pickupLocation: e.target.value
+                              }));
+                            }}
                             placeholder="Enter pickup address"
                             className="w-full border border-gray-300 rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                           />
@@ -515,7 +527,7 @@ const BookRide = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           // In a real app, this would use the browser's geolocation API
-                          if (navigator.geolocation) {
+                          if (navigator.geolocation && isLoaded) {
                             navigator.geolocation.getCurrentPosition(
                               (position) => {
                                 const geocoder = new window.google.maps.Geocoder();
@@ -525,21 +537,30 @@ const BookRide = () => {
                                 };
                                 geocoder.geocode({ location: latlng }, (results, status) => {
                                   if (status === "OK" && results[0]) {
-                                    setStartAddress(results[0].formatted_address);
+                                    const currentAddress = results[0].formatted_address;
+                                    setStartAddress(currentAddress);
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      pickupLocation: currentAddress
+                                    }));
                                   }
                                 });
                               },
                               () => {
+                                const fallbackAddress = "Current Location (detected)";
+                                setStartAddress(fallbackAddress);
                                 setFormData(prev => ({
                                   ...prev,
-                                  pickupLocation: "Current Location (detected)"
+                                  pickupLocation: fallbackAddress
                                 }));
                               }
                             );
                           } else {
+                            const fallbackAddress = "Current Location (detected)";
+                            setStartAddress(fallbackAddress);
                             setFormData(prev => ({
                               ...prev,
-                              pickupLocation: "Current Location (detected)"
+                              pickupLocation: fallbackAddress
                             }));
                           }
                         }}
@@ -557,8 +578,14 @@ const BookRide = () => {
                         onPlaceChanged={() => {
                           if (endRef.current) {
                             const place = endRef.current.getPlace();
+                            console.log('Destination place selected:', place);
                             if (place && place.formatted_address) {
+                              console.log('Setting destination address:', place.formatted_address);
                               setEndAddress(place.formatted_address);
+                              setFormData(prev => ({
+                                ...prev,
+                                destination: place.formatted_address
+                              }));
                             }
                           }
                         }}
@@ -566,6 +593,14 @@ const BookRide = () => {
                         <input
                           type="text"
                           name="destination"
+                          value={formData.destination}
+                          onChange={(e) => {
+                            console.log('Destination input changed:', e.target.value);
+                            setFormData(prev => ({
+                              ...prev,
+                              destination: e.target.value
+                            }));
+                          }}
                           placeholder="Enter destination address"
                           className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                         />
@@ -592,6 +627,22 @@ const BookRide = () => {
                         <div
                           key={index}
                           className="border border-gray-300 rounded-lg p-4 cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-colors duration-300"
+                          onClick={() => {
+                            // Set as pickup if pickup is empty, otherwise set as destination
+                            if (!formData.pickupLocation) {
+                              setStartAddress(location.address);
+                              setFormData(prev => ({
+                                ...prev,
+                                pickupLocation: location.address
+                              }));
+                            } else {
+                              setEndAddress(location.address);
+                              setFormData(prev => ({
+                                ...prev,
+                                destination: location.address
+                              }));
+                            }
+                          }}
                         >
                           <div className="font-medium">{location.name}</div>
                           <div className="text-sm text-gray-500">{location.address}</div>
@@ -601,13 +652,13 @@ const BookRide = () => {
                   </div>
 
                   <div className="bg-gray-100 p-4 rounded-lg overflow-hidden">
-                    {isLoaded ? (
-                      <div className="h-[300px] flex items-center justify-center">
-                        <p className="text-gray-500">Loading Google Maps...</p>
-                      </div>
-                    ) : loadError ? (
+                    {loadError ? (
                       <div className="h-[300px] flex items-center justify-center">
                         <p className="text-red-500">Error loading Google Maps: {loadError.message}</p>
+                      </div>
+                    ) : !isLoaded ? (
+                      <div className="h-[300px] flex items-center justify-center">
+                        <p className="text-gray-500">Loading Google Maps...</p>
                       </div>
                     ) : (
                       <GoogleMap
@@ -701,12 +752,12 @@ const BookRide = () => {
 
                     <div className="flex justify-between">
                       <span className="text-gray-600">Pickup:</span>
-                      <span className="font-medium">{formData.pickupLocation}</span>
+                      <span className="font-medium">{formData.pickupLocation || 'Not selected'}</span>
                     </div>
 
                     <div className="flex justify-between">
                       <span className="text-gray-600">Destination:</span>
-                      <span className="font-medium">{formData.destination}</span>
+                      <span className="font-medium">{formData.destination || 'Not selected'}</span>
                     </div>
 
                     <div className="flex justify-between">
@@ -716,21 +767,37 @@ const BookRide = () => {
 
                     <div className="flex justify-between">
                       <span className="text-gray-600">Estimated Distance:</span>
-                      <span className="font-medium">{estimatedValues.distance}</span>
+                      <span className="font-medium">
+                        {!formData.pickupLocation || !formData.destination
+                          ? 'Enter locations'
+                          : estimatedValues.distance || 'Calculating...'}
+                      </span>
                     </div>
 
                     <div className="flex justify-between">
                       <span className="text-gray-600">Estimated Duration:</span>
-                      <span className="font-medium">{estimatedValues.duration}</span>
+                      <span className="font-medium">
+                        {!formData.pickupLocation || !formData.destination
+                          ? 'Enter locations'
+                          : estimatedValues.duration || 'Calculating...'}
+                      </span>
                     </div>
 
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between text-lg">
                         <span className="font-medium">Estimated Fare:</span>
-                        <span className="font-bold text-primary-600">₹{estimatedValues.fare}</span>
+                        <span className="font-bold text-primary-600">
+                          {!formData.pickupLocation || !formData.destination
+                            ? 'Enter locations'
+                            : estimatedValues.fare ? `₹${estimatedValues.fare}` : 'Calculating...'}
+                        </span>
                       </div>
                       <div className="text-sm text-gray-500 text-right">
-                        ₹{estimatedValues.perPersonFare} per person with {formData.passengers} passengers
+                        {!formData.pickupLocation || !formData.destination
+                          ? 'Please enter pickup and destination'
+                          : estimatedValues.perPersonFare
+                            ? `₹${estimatedValues.perPersonFare} per person with ${formData.passengers} passengers`
+                            : 'Calculating fare...'}
                       </div>
                     </div>
                   </div>

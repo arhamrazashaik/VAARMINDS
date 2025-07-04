@@ -43,7 +43,9 @@ function App() {
       <ScrollToTop />
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Navbar />
-        <AnimatedRoutes />
+        <main className="flex-grow">
+          <AnimatedRoutes />
+        </main>
         <Footer />
         <ScrollToTopButton />
       </div>
@@ -86,7 +88,6 @@ function AnimatedRoutes() {
         exit="out"
         variants={pageVariants}
         transition={pageTransition}
-        className="flex-grow"
       >
         <Routes location={location}>
           <Route path="/" element={<Home />} />

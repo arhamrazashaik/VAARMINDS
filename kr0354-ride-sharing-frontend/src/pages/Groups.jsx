@@ -217,7 +217,7 @@ const Groups = () => {
                 Discover public groups in your area and join them to share rides and save money.
               </p>
               <Link to="/groups/public">
-                <Button className="bg-white text-primary-700 hover:bg-gray-100 border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <Button className="bg-yellow-400 text-gray-900 hover:bg-yellow-300 border-2 border-yellow-400 hover:border-yellow-300 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 font-bold px-6 py-3">
                   Explore Public Groups
                 </Button>
               </Link>
